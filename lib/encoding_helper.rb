@@ -70,12 +70,6 @@ module EncodingHelper
     end
   end
 
-  def encode_num(num)
-    return '' if num.zero?
-
-    int_to_little_endian(num, 1)
-  end
-
   private
 
   def base58_to_num(base58_string)

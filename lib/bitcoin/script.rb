@@ -1,7 +1,6 @@
 require_relative '../bitcoin_data_io'
 require_relative '../encoding_helper'
 require_relative './op'
-
 module Bitcoin
   class Script
     include Bitcoin::Op
@@ -96,7 +95,9 @@ module Bitcoin
       while cmds.any?
         cmd = cmds.shift
         if cmd.is_a? Integer
-          return false unless execute_operation(cmd, cmds, stack, altstack, z)
+          unless execute_operation(cmd, cmds, stack, altstack, z)
+            return false
+          end
         else
           stack.append(cmd)
         end
@@ -111,7 +112,11 @@ module Bitcoin
 
     def raw_serialize
       @cmds.map do |cmd|
-        cmd.is_a?(Integer) ? int_to_little_endian(cmd, 1) : serialized_element_prefix(cmd) + cmd
+        if cmd.is_a? Integer
+          int_to_little_endian(cmd, 1)
+        else
+          serialized_element_prefix(cmd) + cmd
+        end
       end.join
     end
 
@@ -140,10 +145,10 @@ module Bitcoin
       method(function)
     end
 
-    def execute_operation(op_code, cmds, stack, altstack, z)
-      operation = op_code_function(op_code)
+    def execute_operation(cmd, cmds, stack, altstack, z)
+      operation = op_code_function(cmd)
 
-      case op_code
+      case cmd
       when 99, 100
         operation.call(stack, cmds)
 

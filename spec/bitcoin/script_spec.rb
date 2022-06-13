@@ -9,8 +9,8 @@ RSpec.describe Bitcoin::Script do
 
   describe ".parse" do
     context "when the script contains elements" do
-      let(:elem_1_hex) { "11" * 5 }
-      let(:elem_2_hex) { "11" * 17 }
+      let(:elem_1_hex) { '11' * 5 }
+      let(:elem_2_hex) { '11' * 17 }
 
       it "properly parses the script" do
         raw_script = _raw_script("1805#{elem_1_hex}11#{elem_2_hex}")
@@ -24,7 +24,7 @@ RSpec.describe Bitcoin::Script do
     end
 
     context "when the script contains an `OP_PUSHDATA1` opcode" do
-      let(:data_hex) { "11" * 50 }
+      let(:data_hex) { '11' * 50 }
       let(:raw_script) { _raw_script("344c32#{data_hex}") }
 
       it "properly parses the script" do
@@ -34,7 +34,7 @@ RSpec.describe Bitcoin::Script do
     end
 
     context "when the script contains an `OP_PUSHDATA2` opcode" do
-      let(:data_hex) { "11" * 300 }
+      let(:data_hex) { '11' * 300 }
       let(:raw_script) { _raw_script("fd2f014d2c01#{data_hex}") }
 
       it "properly parses the script" do
@@ -42,7 +42,6 @@ RSpec.describe Bitcoin::Script do
         expect(script.cmds).to eq([[data_hex].pack("H*")])
       end
     end
-
     context "when the script contains any other opcode" do
       let(:raw_script) { _raw_script("034e4f50") }
 
@@ -63,8 +62,8 @@ RSpec.describe Bitcoin::Script do
 
   describe "#serialize" do
     context "when the script contains elements" do
-      let(:elem_1_hex) { "11" * 5 }
-      let(:elem_2_hex) { "11" * 17 }
+      let(:elem_1_hex) { '11' * 5 }
+      let(:elem_2_hex) { '11' * 17 }
 
       it "properly seriliazes the script" do
         script = described_class.new([
@@ -78,7 +77,7 @@ RSpec.describe Bitcoin::Script do
     end
 
     context "when the script contains elements longer than 75 bytes" do
-      let(:data_hex) { "11" * 80 }
+      let(:data_hex) { '11' * 80 }
 
       it "properly serializes the script" do
         script = described_class.new([[data_hex].pack("H*")])
@@ -89,7 +88,7 @@ RSpec.describe Bitcoin::Script do
     end
 
     context "when the script contains elements longer than 255 bytes" do
-      let(:data_hex) { "11" * 300 }
+      let(:data_hex) { '11' * 300 }
 
       it "properly serializes the script" do
         script = described_class.new([[data_hex].pack("H*")])
@@ -115,34 +114,34 @@ RSpec.describe Bitcoin::Script do
     let(:commands) { [] }
     let!(:script) { described_class.new(commands) }
 
-    context "when an operation does not execute successfully" do
+    context 'when an operation does not execute successfully' do
       let(:commands) { ["\01", 172] }
 
-      it "returns false" do
+      it 'returns false' do
         expect(script.evaluate(0x1111)).to be false
       end
     end
 
-    context "when the script finishes with 0 as the top element" do
+    context 'when the script finishes with 0 as the top element' do
       let(:commands) { ["\01", "\02", "\03", 118, 0] }
 
-      it "returns false" do
+      it 'returns false' do
         expect(script.evaluate(0x1111)).to be false
       end
     end
 
-    context "when the script finishes with an empty stack" do
+    context 'when the script finishes with an empty stack' do
       let(:commands) { ["\01", 117] }
 
-      it "returns false" do
+      it 'returns false' do
         expect(script.evaluate(0x1111)).to be false
       end
     end
 
-    context "when the script finishes with a nonzero top element" do
+    context 'when the script finishes with a nonzero top element' do
       let(:commands) { ["\01", 169, "", 117] }
 
-      it "returns true" do
+      it 'returns true' do
         expect(script.evaluate(0x1111)).to be true
       end
     end

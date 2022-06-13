@@ -70,7 +70,49 @@ RSpec.describe EncodingHelper do
 
   describe '#int_to_little_endian' do
     it 'takes an integer and returns the little-endian byte sequence of length' do
-      expect(described_module.int_to_little_endian(1, 4)).to eq "\x01\x00\x00\x00"
+      expect(described_module.int_to_little_endian(1, 1)).to eq "\x01"
+    end
+  end
+
+  describe '#encode_varint' do
+    context 'when the integer is below 0xfd' do
+      let(:integer) { 0x5d }
+
+      it 'returns the number as a single byte' do
+        expect(described_module.encode_varint(integer)).to eq "\x5d"
+      end
+    end
+
+    context 'when the integer is above 0xfd and below 0x10000' do
+      let(:integer) { 0x012c }
+
+      it 'returns `0xfd` + the number in two bytes in little endian' do
+        expect(described_module.encode_varint(integer)).to eq "\xfd\x2c\x01"
+      end
+    end
+
+    context 'when the integer is above 0x10000 and below 0x100000000' do
+      let(:integer) { 0xf3946ba }
+
+      it 'returns `0xfe` + the number in four bytes in little endian' do
+        expect(described_module.encode_varint(integer)).to eq "\xfe\xba\x46\x39\x0f"
+      end
+    end
+
+    context 'when the integer is above 0x100000000 and below 0x10000000000000000' do
+      let(:integer) { 0x100000000000 }
+
+      it 'returns `0xff` + the number in eight bytes in little endian' do
+        expect(described_module.encode_varint(integer)).to eq "\xff\x00\x00\x00\x00\x00\x10\x00\x00"
+      end
+    end
+
+    context 'when the integer is above 0x10000000000000000' do
+      let(:integer) { 0x10000000000000000 }
+
+      it 'raises an EncodingError' do
+        expect { described_module.encode_varint(integer) }.to raise_error(EncodingError)
+      end
     end
   end
 
