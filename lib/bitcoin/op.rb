@@ -1,13 +1,13 @@
-require_relative '../hash_helper'
-require_relative '../encoding_helper'
-require_relative '../ecc/signature'
+require 'hash_helper'
+require 'encoding_helper'
+require 'ecc/signature'
 
 module Bitcoin
   module Op # rubocop:disable Metrics/ModuleLength
     include EncodingHelper
 
     def op_0(stack)
-      stack << encode_num(0)
+      stack << ''
       true
     end
 
@@ -54,12 +54,17 @@ module Bitcoin
         return false
       end
 
-      stack << (point.verify(z, sig) ? encode_num(1) : encode_num(0))
+      stack << if point.verify(z, sig)
+                 int_to_little_endian(1, 1)
+                 sigelse
+                 ''
+               end
+
       true
     end
 
     OP_CODE_NAMES = {
-      0 => 'OP_0',
+      0 => 'OP_0', # implemented
       76 => 'OP_PUSHDATA1',
       77 => 'OP_PUSHDATA2',
       78 => 'OP_PUSHDATA4',
@@ -97,8 +102,8 @@ module Bitcoin
       114 => 'OP_2SWAP',
       115 => 'OP_IFDUP',
       116 => 'OP_DEPTH',
-      117 => 'OP_DROP',
-      118 => 'OP_DUP',
+      117 => 'OP_DROP', # implemented
+      118 => 'OP_DUP', # implemented
       119 => 'OP_NIP',
       120 => 'OP_OVER',
       121 => 'OP_PICK',
@@ -133,10 +138,10 @@ module Bitcoin
       166 => 'OP_RIPEMD160',
       167 => 'OP_SHA1',
       168 => 'OP_SHA256',
-      169 => 'OP_HASH160',
-      170 => 'OP_HASH256',
+      169 => 'OP_HASH160', # implemented
+      170 => 'OP_HASH256', # implemented
       171 => 'OP_CODESEPARATOR',
-      172 => 'OP_CHECKSIG',
+      172 => 'OP_CHECKSIG', # implemented
       173 => 'OP_CHECKSIGVERIFY',
       174 => 'OP_CHECKMULTISIG',
       175 => 'OP_CHECKMULTISIGVERIFY',
