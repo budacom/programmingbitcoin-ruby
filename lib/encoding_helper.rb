@@ -3,6 +3,9 @@ require_relative 'hash_helper'
 
 module EncodingHelper
   BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+  SIGHASH_ALL = 1
+  SIGHASH_NONE = 2
+  SIGHASH_SINGLE = 3
 
   def from_bytes(bytes, endianness)
     bytes = bytes.unpack('C*')

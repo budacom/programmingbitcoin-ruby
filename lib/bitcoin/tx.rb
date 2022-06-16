@@ -1,9 +1,11 @@
 require_relative '../bitcoin_data_io'
 
 module Bitcoin
+  include EncodingHelper
+
   class Tx
     class TxIn
-      def self.parse(_io)
+      def self.parse(_io )
         io = BitcoinDataIO(_io)
 
         new.tap do |obj|
@@ -51,6 +53,39 @@ module Bitcoin
 
     def fee
       @fee ||= calculate_fee
+    end
+
+    def sig_hash(input_index)
+      result = int_to_little_endian version, 4
+      result << encode_varint ins.size 
+      
+      ins.each_with_index do |input, index|
+        if index == input_index
+          result << TxIn.new(
+            prev_tx: input.prev_tx,
+            prev_index: input.prev_index,
+            raw_script_sig: input.raw_script_sig, # TODO: add script_pubkey
+            sequence: input.sequence
+          ) # TODO: add serialize
+        else
+          result << TxIn.new(
+            prev_tx: input.prev_tx,
+            prev_index: input.prev_index,
+            sequence: input.sequence
+          ) # TODO: add serialize
+        end
+      end
+
+      result << encode_varint outs.size
+      outs.each do |output|
+        result << output # TODO: add serialize
+      end
+
+      result << int_to_little_endian locktime, 4
+      result << int_to_little_endian SIGHASH_ALL, 4
+      hash256 = HashHelper.hash256 result
+
+      from_bytes hash256, 'big'
     end
 
     private
