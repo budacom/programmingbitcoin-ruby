@@ -32,9 +32,9 @@ module Bitcoin
 
       def serialize
         result = prev_tx.reverse
-        result << to_bytes prev_index 4 'little'
+        result << to_bytes(prev_index, 4, 'little')
         result << script_sig.serialize
-        result + to_bytes sequence 4 'little'
+        result + to_bytes(sequence, 4, 'little')
       end
 
       attr_accessor :prev_tx, :prev_index, :raw_script_sig, :sequence
@@ -150,7 +150,7 @@ module Bitcoin
     def sign_input(input_index, private_key)
       z = sig_hash(input_index)
       der = private_key.sign(z).der
-      sig = der + to_bytes SIGHASH_ALL 'big'
+      sig = der + to_bytes(SIGHASH_ALL, 'big')
       sec = private_key.point.sec()
       ins[input_index].evp = Script.new([sig, sec])
 
