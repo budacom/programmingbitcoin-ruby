@@ -29,7 +29,7 @@ fe55f3deb369fe5d9280cb1a01793f81"
     end
 
     it "properly parses each input script_sig" do
-      expect(bytes_to_hex(parse(raw_tx).ins.first.raw_script_sig)).to eq "483045022100ed81ff192e75a\
+      expect(bytes_to_hex(parse(raw_tx).ins.first.script_sig)).to eq "483045022100ed81ff192e75a\
 3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c3\
 1967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278a"
     end

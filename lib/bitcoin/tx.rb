@@ -2,6 +2,7 @@ require_relative '../bitcoin_data_io'
 require_relative '../encoding_helper'
 require_relative '../hash_helper'
 require 'net/http'
+require 'stringio'
 
 module Bitcoin
   include EncodingHelper
@@ -15,8 +16,8 @@ module Bitcoin
         new.tap do |obj|
           obj.prev_tx = io.read_le(32)
           obj.prev_index = io.read_le_int32
-          obj.raw_script_sig = _io.read(io.read_varint)
-          obj.script_sig = raw_script_sig.nil? ? Script.new : script_sig
+          raw_script_sig = io.read(io.read_varint)
+          obj.script_sig = raw_script_sig.nil? ? Script.new : raw_script_sig
           obj.sequence = io.read_le_int32
         end
       end
@@ -37,7 +38,7 @@ module Bitcoin
         result + to_bytes(sequence, 4, 'little')
       end
 
-      attr_accessor :prev_tx, :prev_index, :raw_script_sig, :sequence
+      attr_accessor :prev_tx, :prev_index, :script_sig, :sequence
     end
 
     class TxOut
@@ -83,10 +84,11 @@ module Bitcoin
 
     attr_accessor :version, :locktime, :ins, :outs
 
-    def initialize(tx_fetcher: nil)
+    def initialize(tx_fetcher: nil, testnet: false)
       @tx_fetcher = tx_fetcher
       @ins = []
       @outs = []
+      @testnet = testnet
     end
 
     def fee
