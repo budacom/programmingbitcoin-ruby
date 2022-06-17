@@ -1,4 +1,5 @@
 require_relative '../bitcoin_data_io'
+require_relative '../encoding_helper'
 
 module Bitcoin
   include EncodingHelper
@@ -57,7 +58,7 @@ module Bitcoin
 
     def sig_hash(input_index)
       result = int_to_little_endian version, 4
-      result << encode_varint ins.size 
+      result << encode_varint(ins.size)
       
       ins.each_with_index do |input, index|
         if index == input_index
@@ -76,13 +77,13 @@ module Bitcoin
         end
       end
 
-      result << encode_varint outs.size
+      result << encode_varint(outs.size)
       outs.each do |output|
         result << output # TODO: add serialize
       end
 
-      result << int_to_little_endian locktime, 4
-      result << int_to_little_endian SIGHASH_ALL, 4
+      result << int_to_little_endian(locktime, 4)
+      result << int_to_little_endian(SIGHASH_ALL, 4)
       hash256 = HashHelper.hash256 result
 
       from_bytes hash256, 'big'

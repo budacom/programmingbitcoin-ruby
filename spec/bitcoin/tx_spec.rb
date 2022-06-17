@@ -96,4 +96,38 @@ a9143c82d7df364eb6c75be8c80df2b3eda8db57397088ac46430600"
   def bytes_to_hex(_bytes)
     _bytes.unpack1("H*")
   end
+
+  describe '#sig_hash' do
+    let(:tx) { described_class.parse raw_tx, tx_fetcher: tx_fetcher }
+    # TODO: Completar
+    let(:raw_tx) {}
+
+    it 'returns the correct sig_hash' do
+      # TODO: Completar
+      expect(tx.sig_hash(0)).to eq ''
+    end
+  end
+
+  describe '#verify_input' do
+    let(:tx) { described_class.parse raw_tx, tx_fetcher: tx_fetcher }
+     # TODO: Completar
+    let(:raw_tx) {}
+
+    it 'verifies the input' do
+      # TODO: Completar
+      expect(tx.verify_input(0)).to eq ''
+    end
+  end
+
+  describe '#sign_input' do
+    let(:tx) { described_class.parse raw_tx, tx_fetcher: tx_fetcher }
+     # TODO: Completar
+    let(:raw_tx) {}
+    let(:private_key) {}
+
+    it 'signs the input' do
+      # TODO: Completar
+      expect(tx.sign_input(0, private_key)).to eq ''
+    end
+  end
 end
