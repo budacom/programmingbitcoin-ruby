@@ -1,8 +1,11 @@
 require_relative '../bitcoin_data_io'
 require_relative '../encoding_helper'
+require_relative '../hash_helper'
+require 'net/http'
 
 module Bitcoin
   include EncodingHelper
+  include HashHelper
 
   class Tx
     class TxIn
@@ -42,6 +45,23 @@ module Bitcoin
         io.read_varint.times { tx.outs << TxOut.parse(io) }
         tx.locktime = io.read_le_int32
       end
+    end
+
+    def id
+      hash.hex
+    end
+
+    def hash
+      hash256(serialize).reverse
+    end
+
+    def serialize
+      result = to_bytes(version, 4, 'little')
+      result << encode_varint(ins.size)
+      result << ins.map(&:serialize).join
+      result << encode_varint(outs.size)
+      result << outs.map(&:serialize).join
+      result + to_bytes(locktime, 4, 'little')
     end
 
     attr_accessor :version, :locktime, :ins, :outs
@@ -104,5 +124,30 @@ module Bitcoin
 
       input_amount - output_amount
     end
+  end
+
+  class TxFetcher
+    def self.base_url(testnet: false)
+      testnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api'
+    end
+
+    def self.fetch(tx_id, testnet: false)
+      url = "#{base_url(testnet: testnet)}/tx/#{tx_id}"
+      res = Net::HTTP.get(url)
+      raw = res.text.strip
+
+      if raw[4] == 0
+        raw = raw[...4] + raw[6...]
+        tx = parse(StrinIO(raw), testnet: testnet)
+        tx.locktime = from_bytes(raw[-4...], 'little')
+      else
+        tx = parse(StringIO(raw), testnet: testnet)
+      end
+
+      raise "not the same id: #{tx.id} vs #{tx_id}" if tx.id != tx_id
+
+      tx
+    end
+    
   end
 end
