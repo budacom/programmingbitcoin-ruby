@@ -16,8 +16,25 @@ module Bitcoin
           obj.prev_tx = io.read_le(32)
           obj.prev_index = io.read_le_int32
           obj.raw_script_sig = _io.read(io.read_varint)
+          obj.script_sig = raw_script_sig.nil? ? Script.new : script_sig
           obj.sequence = io.read_le_int32
         end
+      end
+
+      def fetch_tx(testnet: false)
+        tx_fetcher.fetch prev_tx testnet: testnet
+      end
+
+      def script_pubkey(testnet: false)
+        tx = fetch_tx testnet: testnet
+        tx.outs[prev_index].script_pubkey
+      end
+
+      def serialize
+        result = prev_tx.reverse
+        result << to_bytes prev_index 4 'little'
+        result << script_sig.serialize
+        result + to_bytes sequence 4 'little'
       end
 
       attr_accessor :prev_tx, :prev_index, :raw_script_sig, :sequence
@@ -87,19 +104,19 @@ module Bitcoin
             prev_index: input.prev_index,
             raw_script_sig: input.raw_script_sig, # TODO: add script_pubkey
             sequence: input.sequence
-          ) # TODO: add serialize
+          ).serialize
         else
           result << TxIn.new(
             prev_tx: input.prev_tx,
             prev_index: input.prev_index,
             sequence: input.sequence
-          ) # TODO: add serialize
+          ).serialize
         end
       end
 
       result << encode_varint(outs.size)
       outs.each do |output|
-        result << output # TODO: add serialize
+        result << output.serialize
       end
 
       result << int_to_little_endian(locktime, 4)
@@ -107,6 +124,37 @@ module Bitcoin
       hash256 = HashHelper.hash256 result
 
       from_bytes hash256, 'big'
+    end
+
+    def verify_input(input_index)
+      tx_in = ins[input_index]
+      script_pubkey = tx_in.script_pubkey testnet: testnet
+      z = sig_hash(input_index)
+      combined = tx_in.script_sig + script_pubkey
+
+      combined.evaluate(z)
+    end
+
+    def verify
+      if calculate_fee < 0
+        return false
+      end
+      ins.each_with_index  do |input, index|
+        if !verify_input(index)
+          return false
+        end
+      end
+      true
+    end
+
+    def sign_input(input_index, private_key)
+      z = sig_hash(input_index)
+      der = private_key.sign(z).der
+      sig = der + to_bytes SIGHASH_ALL 'big'
+      sec = private_key.point.sec()
+      ins[input_index].evp = Script.new([sig, sec])
+
+      verify_input(input_index)
     end
 
     private
