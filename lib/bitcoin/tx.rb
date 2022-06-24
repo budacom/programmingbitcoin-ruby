@@ -2,6 +2,7 @@ require_relative '../bitcoin_data_io'
 require_relative '../encoding_helper'
 require_relative '../hash_helper'
 require 'net/http'
+require 'uri'
 require 'stringio'
 
 module Bitcoin
@@ -52,6 +53,30 @@ module Bitcoin
       end
 
       attr_accessor :amount, :raw_script_pubkey
+    end
+
+    class TxFetcher
+      def self.base_url(testnet: false)
+        testnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api'
+      end
+
+      def self.fetch(tx_id, testnet: false)
+        url = URI("#{base_url(testnet: testnet)}/tx/#{tx_id}")
+        res = Net::HTTP.get(url)
+        raw = res.text.strip
+
+        if raw[4] == 0
+          raw = raw[...4] + raw[6...]
+          tx = Bitcoin::Tx.parse(StringIO(raw), testnet: testnet)
+          tx.locktime = from_bytes(raw[-4...], 'little')
+        else
+          tx = Bitcoin::Tx.parse(StringIO(raw), testnet: testnet)
+        end
+
+        raise "not the same id: #{tx.id} vs #{tx_id}" if tx.id != tx_id
+
+        tx
+      end
     end
 
     def self.parse(_io, _options = {})
@@ -172,30 +197,5 @@ module Bitcoin
 
       input_amount - output_amount
     end
-  end
-
-  class TxFetcher
-    def self.base_url(testnet: false)
-      testnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api'
-    end
-
-    def self.fetch(tx_id, testnet: false)
-      url = "#{base_url(testnet: testnet)}/tx/#{tx_id}"
-      res = Net::HTTP.get(url)
-      raw = res.text.strip
-
-      if raw[4] == 0
-        raw = raw[...4] + raw[6...]
-        tx = parse(StrinIO(raw), testnet: testnet)
-        tx.locktime = from_bytes(raw[-4...], 'little')
-      else
-        tx = parse(StringIO(raw), testnet: testnet)
-      end
-
-      raise "not the same id: #{tx.id} vs #{tx_id}" if tx.id != tx_id
-
-      tx
-    end
-    
   end
 end
