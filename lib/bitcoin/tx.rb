@@ -5,7 +5,7 @@ require 'net/http'
 require 'stringio'
 
 module Bitcoin
-  include EncodingHelper
+  # include EncodingHelper
   include HashHelper
 
   class Tx
@@ -23,7 +23,7 @@ module Bitcoin
       end
 
       def fetch_tx(testnet: false)
-        tx_fetcher.fetch prev_tx testnet: testnet
+        @tx_fetcher.fetch prev_tx testnet: testnet
       end
 
       def script_pubkey(testnet: false)
@@ -74,7 +74,7 @@ module Bitcoin
     end
 
     def serialize
-      result = to_bytes(version, 4, 'little')
+      result = EncodingHelper::to_bytes(version, 4, 'little')
       result << encode_varint(ins.size)
       result << ins.map(&:serialize).join
       result << encode_varint(outs.size)
@@ -104,7 +104,7 @@ module Bitcoin
           result << TxIn.new(
             prev_tx: input.prev_tx,
             prev_index: input.prev_index,
-            raw_script_sig: input.raw_script_sig, # TODO: add script_pubkey
+            script_sig: input.script_pubkey(@testnet), # TODO: add script_pubkey
             sequence: input.sequence
           ).serialize
         else
@@ -137,15 +137,13 @@ module Bitcoin
       combined.evaluate(z)
     end
 
-    def verify
-      if calculate_fee < 0
-        return false
-      end
+    def verify?
+      return false if @fee.negative?
+
       ins.each_with_index  do |input, index|
-        if !verify_input(index)
-          return false
-        end
+        return false unless verify_input index 
       end
+
       true
     end
 

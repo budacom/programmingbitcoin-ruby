@@ -1,7 +1,12 @@
 require_relative '../bitcoin_data_io'
 require_relative '../encoding_helper'
 require_relative './op'
+
 module Bitcoin
+  def p2pkh_script(h160)
+    Script.new([0x76, 0xa9, h160, 0x88, 0xac])
+  end
+
   class Script
     include Bitcoin::Op
     include EncodingHelper
