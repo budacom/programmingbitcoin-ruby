@@ -13,7 +13,7 @@ module EncodingHelper
     bytes.map.with_index { |byte, index| byte * 256**index }.sum
   end
 
-  def to_bytes(integer, bytes, endianness)
+  def self.to_bytes(integer, bytes, endianness)
     byte_array = [0] * bytes
     integer.digits(256).each_with_index do |byte, index|
       byte_array[index] = byte
@@ -55,11 +55,11 @@ module EncodingHelper
     from_bytes(bytes, 'little')
   end
 
-  def int_to_little_endian(int, length)
+  def self.int_to_little_endian(int, length)
     to_bytes(int, length, 'little')
   end
 
-  def encode_varint(integer)
+  def self.encode_varint(integer)
     if integer < 0xfd
       int_to_little_endian(integer, 1)
     elsif integer < 0x10000

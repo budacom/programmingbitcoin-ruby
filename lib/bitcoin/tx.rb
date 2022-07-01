@@ -6,8 +6,8 @@ require 'uri'
 require 'stringio'
 
 module Bitcoin
-  # include EncodingHelper
   include HashHelper
+  include EncodingHelper
 
   class Tx
     class TxIn
@@ -52,10 +52,18 @@ module Bitcoin
         end
       end
 
+      def serialize
+        result = EncodingHelper::int_to_little_endian(@amount, 8)
+
+        result += @raw_script_pubkey
+      end
+
       attr_accessor :amount, :raw_script_pubkey
     end
 
     class TxFetcher
+      extend EncodingHelper
+
       def self.base_url(testnet: false)
         testnet ? 'https://blockstream.info/testnet/api' : 'https://blockstream.info/api'
       end
@@ -65,7 +73,7 @@ module Bitcoin
         res = Net::HTTP.get(url)
         raw = res.strip
         if raw[4] == '0'
-          raw = raw[...4] + raw[6...]
+          #raw = raw[...4] + raw[6...]
           tx = Bitcoin::Tx.parse(StringIO.new([raw].pack('H*')), testnet: testnet)
           tx.locktime = from_bytes(raw[-4...], 'little')
         else
@@ -94,16 +102,16 @@ module Bitcoin
     end
 
     def hash
-      hash256(serialize).reverse
+      HashHelper.hash256(serialize).reverse
     end
 
     def serialize
       result = EncodingHelper::to_bytes(version, 4, 'little')
-      result << encode_varint(ins.size)
+      result << EncodingHelper::encode_varint(ins.size)
       result << ins.map(&:serialize).join
-      result << encode_varint(outs.size)
+      result << EncodingHelper::encode_varint(outs.size)
       result << outs.map(&:serialize).join
-      result + to_bytes(locktime, 4, 'little')
+      result + EncodingHelper::to_bytes(locktime, 4, 'little')
     end
 
     attr_accessor :version, :locktime, :ins, :outs
