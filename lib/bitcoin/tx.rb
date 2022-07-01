@@ -24,7 +24,7 @@ module Bitcoin
       end
 
       def fetch_tx(testnet: false)
-        @tx_fetcher.fetch prev_tx testnet: testnet
+        TxFetcher.fetch prev_tx testnet: testnet
       end
 
       def script_pubkey(testnet: false)
@@ -61,16 +61,15 @@ module Bitcoin
       end
 
       def self.fetch(tx_id, testnet: false)
-        url = URI("#{base_url(testnet: testnet)}/tx/#{tx_id}")
+        url = URI("#{base_url(testnet: testnet)}/tx/#{tx_id}/hex")
         res = Net::HTTP.get(url)
-        raw = res.text.strip
-
-        if raw[4] == 0
+        raw = res.strip
+        if raw[4] == '0'
           raw = raw[...4] + raw[6...]
-          tx = Bitcoin::Tx.parse(StringIO(raw), testnet: testnet)
+          tx = Bitcoin::Tx.parse(StringIO.new([raw].pack('H*')), testnet: testnet)
           tx.locktime = from_bytes(raw[-4...], 'little')
         else
-          tx = Bitcoin::Tx.parse(StringIO(raw), testnet: testnet)
+          tx = Bitcoin::Tx.parse(StringIO.new([raw].pack('H*')), testnet: testnet)
         end
 
         raise "not the same id: #{tx.id} vs #{tx_id}" if tx.id != tx_id
@@ -123,7 +122,7 @@ module Bitcoin
     def sig_hash(input_index)
       result = int_to_little_endian version, 4
       result << encode_varint(ins.size)
-      
+
       ins.each_with_index do |input, index|
         if index == input_index
           result << TxIn.new(
@@ -166,7 +165,7 @@ module Bitcoin
       return false if @fee.negative?
 
       ins.each_with_index  do |input, index|
-        return false unless verify_input index 
+        return false unless verify_input index
       end
 
       true
