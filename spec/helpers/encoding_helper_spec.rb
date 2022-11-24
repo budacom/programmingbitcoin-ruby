@@ -133,4 +133,14 @@ RSpec.describe EncodingHelper do
       expect(described_module.bytes_to_hex("\xA0/")).to eq "a02f"
     end
   end
+
+  describe '#bit_field_to_bytes' do
+    it 'produces the proper bytes' do
+      bit_field = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0,
+                   1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+      expect(described_module.bit_field_to_bytes(bit_field))
+        .to eq "@\x00`\n\b\x00\x00\x01\t@"
+    end
+  end
 end
