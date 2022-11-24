@@ -94,6 +94,18 @@ module EncodingHelper
     result.pack('c*')
   end
 
+  def bytes_to_bit_field(bytes)
+    bytes = bytes.unpack('C*')
+    bit_field = []
+    bytes.each do |byte|
+      8.times do
+        bit_field << (byte & 1)
+        byte >>= 1
+      end
+    end
+    bit_field
+  end
+
   private
 
   def base58_to_num(base58_string)

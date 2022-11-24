@@ -139,8 +139,20 @@ RSpec.describe EncodingHelper do
       bit_field = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0,
                    1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+      bytes = "@\x00`\n\b\x00\x00\x01\t@"
       expect(described_module.bit_field_to_bytes(bit_field))
-        .to eq "@\x00`\n\b\x00\x00\x01\t@"
+        .to eq bytes
+    end
+  end
+
+  describe '#bytes_to_bit_field' do
+    it 'produces the proper bit_field' do
+      bit_field = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0,
+                   1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+      bytes = "@\x00`\n\b\x00\x00\x01\t@"
+
+      expect(described_module.bytes_to_bit_field(bytes)).to eq bit_field
     end
   end
 end
