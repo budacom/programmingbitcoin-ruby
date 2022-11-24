@@ -43,11 +43,11 @@ RSpec.describe ECC do
     let(:solution) { ECC::Point.new(x, y, a, b) }
 
     it 'returns the point scalar product (scalar on the right side)' do
-      expect(point1 * scalar ).to eq solution
+      expect(point1 * scalar).to eq solution
     end
 
     it 'returns the point scalar product (scalar on the left side)' do
-      expect(scalar * point1 ).to eq solution
+      expect(scalar * point1).to eq solution
     end
   end
 end
