@@ -1,6 +1,6 @@
 require 'bitcoin/network/messages/headers'
 require 'bitcoin/block'
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 require 'stringio'
 
 RSpec.describe Bitcoin::Network::Messages::Headers do

@@ -1,5 +1,5 @@
 # encoding: ascii-8bit
-require_relative '../../../encoding_helper'
+require_relative '../../../helpers/encoding_helper'
 
 module Bitcoin
   module Network

@@ -1,5 +1,5 @@
 require_relative '../bitcoin_data_io'
-require_relative '../encoding_helper'
+require_relative '../helpers/encoding_helper'
 require_relative './op'
 
 module Bitcoin

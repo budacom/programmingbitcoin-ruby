@@ -1,9 +1,9 @@
 require_relative 's256_field'
 require_relative 'point'
 require_relative 'secp256k1_constants'
-require_relative '../encoding_helper'
-require_relative '../hash_helper'
-require_relative '../address_helper'
+require_relative '../helpers/encoding_helper'
+require_relative '../helpers/hash_helper'
+require_relative '../helpers/address_helper'
 module ECC
   class S256Point < Point
     include EncodingHelper

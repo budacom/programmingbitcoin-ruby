@@ -1,6 +1,6 @@
 require 'bitcoin/network/messages/get_headers'
 require 'bitcoin/block'
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe Bitcoin::Network::Messages::GetHeaders do
   include EncodingHelper

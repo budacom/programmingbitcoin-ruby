@@ -1,4 +1,4 @@
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe BitcoinDataIO do
   def io(_hex_data)

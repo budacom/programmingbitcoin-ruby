@@ -1,4 +1,8 @@
+require_relative 'encoding_helper'
+
 module ScriptHelper
+  include EncodingHelper
+
   def encode_num(num)
     return '' if num.zero?
 

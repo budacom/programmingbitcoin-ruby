@@ -1,7 +1,7 @@
 require_relative 's256_point'
 require_relative 'signature'
 require_relative 'secp256k1_constants'
-require_relative '../encoding_helper'
+require_relative '../helpers/encoding_helper'
 require 'openssl'
 
 module ECC

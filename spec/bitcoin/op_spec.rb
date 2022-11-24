@@ -2,8 +2,8 @@
 require 'bitcoin/op'
 require 'ecc/s256_point'
 require 'ecc/signature'
-require 'hash_helper'
-require 'encoding_helper'
+require 'helpers/hash_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe Bitcoin::Op do
   include EncodingHelper

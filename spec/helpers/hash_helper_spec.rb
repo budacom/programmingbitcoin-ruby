@@ -1,3 +1,5 @@
+require 'helpers/hash_helper'
+
 RSpec.describe HashHelper do
   describe '#hash160' do
     it 'computes the hash by sha256 followed by ripemd160' do

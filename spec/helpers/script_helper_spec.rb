@@ -1,3 +1,5 @@
+require 'helpers/script_helper'
+
 RSpec.describe ScriptHelper do
   let(:described_module) { Object.new.extend described_class }
 

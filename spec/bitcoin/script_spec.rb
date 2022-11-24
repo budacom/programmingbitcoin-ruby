@@ -1,6 +1,6 @@
 require 'bitcoin/script'
 require 'bitcoin/op'
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe Bitcoin::Script do
   def _raw_script(hex_script)

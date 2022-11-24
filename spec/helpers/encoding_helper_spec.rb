@@ -1,5 +1,5 @@
 # encoding: ascii-8bit
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe EncodingHelper do
   let(:described_module) { Object.new.extend described_class }

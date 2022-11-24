@@ -4,8 +4,8 @@ require 'ecc/field_element'
 require 'ecc/signature'
 require 'ecc/secp256k1_constants'
 require 'ecc/private_key'
-require 'encoding_helper'
-require 'hash_helper'
+require 'helpers/encoding_helper'
+require 'helpers/hash_helper'
 
 RSpec.describe ECC::S256Point do
   describe 'init' do
