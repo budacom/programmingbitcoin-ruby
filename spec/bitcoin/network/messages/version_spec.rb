@@ -1,5 +1,5 @@
 require 'bitcoin/network/messages/version'
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 require 'timecop'
 
 RSpec.describe Bitcoin::Network::Messages::Version do

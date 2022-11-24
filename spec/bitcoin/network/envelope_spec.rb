@@ -1,7 +1,7 @@
 # encoding: ascii-8bit
 
 require 'bitcoin/network/envelope'
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe Bitcoin::Network::Envelope do
   include EncodingHelper

@@ -1,4 +1,4 @@
-require 'address_helper'
+require 'helpers/address_helper'
 
 RSpec.describe AddressHelper do
   let(:described_module) { Object.new.extend described_class }

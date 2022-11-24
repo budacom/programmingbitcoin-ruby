@@ -1,6 +1,6 @@
-require_relative '../hash_helper'
-require_relative '../encoding_helper'
-require_relative '../script_helper'
+require_relative '../helpers/hash_helper'
+require_relative '../helpers/encoding_helper'
+require_relative '../helpers/script_helper'
 require_relative '../ecc/signature'
 require_relative '../ecc/s256_point'
 

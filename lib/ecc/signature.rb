@@ -1,4 +1,4 @@
-require_relative '../encoding_helper'
+require_relative '../helpers/encoding_helper'
 module ECC
   class Signature
     include EncodingHelper

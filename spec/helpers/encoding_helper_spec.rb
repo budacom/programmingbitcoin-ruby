@@ -1,5 +1,5 @@
 # encoding: ascii-8bit
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe EncodingHelper do
   let(:described_module) { Object.new.extend described_class }
@@ -131,6 +131,28 @@ RSpec.describe EncodingHelper do
   describe '#bytes_to_hex' do
     it 'takes a byte sequence and returns an hex string' do
       expect(described_module.bytes_to_hex("\xA0/")).to eq "a02f"
+    end
+  end
+
+  describe '#bit_field_to_bytes' do
+    it 'produces the proper bytes' do
+      bit_field = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0,
+                   1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+      bytes = "@\x00`\n\b\x00\x00\x01\t@"
+      expect(described_module.bit_field_to_bytes(bit_field))
+        .to eq bytes
+    end
+  end
+
+  describe '#bytes_to_bit_field' do
+    it 'produces the proper bit_field' do
+      bit_field = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0,
+                   1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+      bytes = "@\x00`\n\b\x00\x00\x01\t@"
+
+      expect(described_module.bytes_to_bit_field(bytes)).to eq bit_field
     end
   end
 end

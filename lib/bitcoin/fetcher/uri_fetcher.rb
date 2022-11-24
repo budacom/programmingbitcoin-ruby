@@ -1,6 +1,6 @@
 require_relative './fetcher'
 require_relative '../tx'
-require_relative '../../encoding_helper'
+require_relative '../../helpers/encoding_helper'
 require 'net/http'
 require 'stringio'
 

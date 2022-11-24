@@ -1,8 +1,8 @@
 # encoding: ascii-8bit
 
 require_relative '../../bitcoin_data_io'
-require_relative '../../encoding_helper'
-require_relative '../../hash_helper'
+require_relative '../../helpers/encoding_helper'
+require_relative '../../helpers/hash_helper'
 
 module Bitcoin
   module Network

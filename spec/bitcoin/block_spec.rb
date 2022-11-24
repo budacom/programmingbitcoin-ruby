@@ -1,5 +1,5 @@
 require 'bitcoin/block'
-require 'encoding_helper'
+require 'helpers/encoding_helper'
 
 RSpec.describe Bitcoin::Block do
   include EncodingHelper

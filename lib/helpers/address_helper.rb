@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-require 'encoding_helper'
+require_relative 'encoding_helper'
 
 module AddressHelper
   include EncodingHelper
