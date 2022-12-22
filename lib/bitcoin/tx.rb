@@ -263,17 +263,41 @@ module Bitcoin
     def verify_input(input_index)
       tx_in = ins[input_index]
       script_pubkey = tx_in.script_pubkey testnet: @testnet
+      z, witness = build_z_and_witness(script_pubkey, tx_in, input_index)
 
+      combined = tx_in.script_sig + script_pubkey
+      combined.evaluate(z, witness: witness)
+    end
+
+    def build_z_and_witness(script_pubkey, tx_in, input_index) # rubocop:disable Metrics/MethodLength
       if script_pubkey.p2sh?
         cmd = tx_in.script_sig.cmds[-1]
         raw_redeem = encode_varint(cmd.length) + cmd
         redeem_script = Script.parse(StringIO.new(raw_redeem))
+
+        if redeem_script.p2wpkh?
+          [sig_hash_bip143(input_index, redeem_script), tx_in.witness]
+        elsif redeem_script.p2wsh?
+          build_z_from_witness(tx_in, input_index)
+        else
+          [sig_hash(input_index, redeem_script), nil]
+        end
+
+      elsif script_pubkey.p2wpkh?
+        [sig_hash_bip143(input_index, redeem_script: redeem_script), tx_in.witness]
+      elsif script_pubkey.p2wsh?
+        build_z_from_witness(tx_in, input_index)
       else
-        redeem_script = nil
+        [sig_hash(input_index), nil]
       end
-      z = sig_hash(input_index, redeem_script)
-      combined = tx_in.script_sig + script_pubkey
-      combined.evaluate(z)
+    end
+
+    def build_z_from_witness(tx_in, input_index)
+      cmd = tx_in.witness.last
+      raw_witness = encode_varint(cmd.size) + cmd
+      witness_script = Script.parse(StringIO.new(raw_witness))
+
+      [sig_hash_bip143(input_index, witness_script: witness_script), tx_in.witness]
     end
 
     def verify?

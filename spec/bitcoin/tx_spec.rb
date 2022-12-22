@@ -225,6 +225,27 @@ bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d
         expect(tx.verify_input(0)).to be true
       end
     end
+
+    context 'when tx is segwit and the script pubkey is p2wpkh' do
+      let(:tx_p2wpkh) { described_class.parse raw_tx_sw, tx_fetcher: tx_fetcher }
+
+      it 'verifies unlocking script unlocks the script' do
+        skip
+        expect(tx_p2wpkh.verify_input(0)).to be true
+      end
+    end
+
+    context 'when tx is segwit and the script pubkey is p2wsh' do
+      let(:raw_tx_p2wsh) do
+        resolve_tx '98abf6f18cedc5e527775ff2b0d4235b16fd40774c33ab7c599e20099fd11259'
+      end
+      let(:tx_p2wsh) { described_class.parse raw_tx_p2wsh, tx_fetcher: tx_fetcher }
+
+      it 'verifies unlocking script unlocks the script' do
+        skip
+        expect(tx_p2wsh.verify_input(0)).to be true
+      end
+    end
   end
 
   describe '#sign_input' do
