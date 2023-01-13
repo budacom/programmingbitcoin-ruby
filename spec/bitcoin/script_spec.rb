@@ -1,6 +1,7 @@
 require 'bitcoin/script'
 require 'bitcoin/op'
 require 'encoding_helper'
+require 'pry'
 
 RSpec.describe Bitcoin::Script do
   def _raw_script(hex_script)
@@ -218,6 +219,75 @@ RSpec.describe Bitcoin::Script do
 
       it 'returns false' do
         expect(script.p2sh?).to be false
+      end
+    end
+  end
+
+  describe '#p2wpkh?' do
+    let!(:script) { described_class.new(commands) }
+    let(:commands) { [] }
+
+    context "when the script matches the p2wpkh pattern" do
+      let(:hash160) { HashHelper.hash160('') }
+      let(:commands) do
+        [
+          0,
+          hash160
+        ]
+      end
+      let!(:script) { described_class.new(commands) }
+
+      it 'returns true' do
+        expect(script.p2wpkh?).to be true
+      end
+    end
+
+    context "when the script does not match the p2wpkh pattern" do
+      let(:commands) do
+        [
+          '',
+          18,
+          135
+        ]
+      end
+      let!(:script) { described_class.new(commands) }
+
+      it 'returns false' do
+        expect(script.p2wpkh?).to be false
+      end
+    end
+  end
+
+  describe '#p2wsh?' do
+    let!(:script) { described_class.new(commands) }
+    let(:commands) { [] }
+
+    context "when the script matches the p2wsh pattern" do
+      let(:hash256) { HashHelper.hash256('') }
+      let(:commands) do
+        [
+          0,
+          hash256
+        ]
+      end
+      let!(:script) { described_class.new(commands) }
+
+      it 'returns true' do
+        expect(script.p2wsh?).to be true
+      end
+    end
+
+    context "when the script does not match the p2wsh pattern" do
+      let(:commands) do
+        [
+          '',
+          18
+        ]
+      end
+      let!(:script) { described_class.new(commands) }
+
+      it 'returns false' do
+        expect(script.p2wsh?).to be false
       end
     end
   end

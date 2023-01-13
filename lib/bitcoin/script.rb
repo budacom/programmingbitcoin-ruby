@@ -1,5 +1,6 @@
 require_relative '../bitcoin_data_io'
 require_relative '../encoding_helper'
+require_relative '../hash_helper'
 require_relative './op'
 
 module Bitcoin
@@ -88,14 +89,14 @@ module Bitcoin
       encode_varint(raw.length) + raw
     end
 
-    def evaluate(z) # rubocop:disable Metrics/MethodLength
+    def evaluate(z, witness: nil)
       cmds = @cmds.clone
       stack = []
       altstack = []
 
       while cmds.any?
         cmd = cmds.shift
-        return false unless resolve_cmd(cmd, cmds, stack, altstack, z)
+        return false unless resolve_cmd(cmd, cmds, stack, altstack, z, witness: witness)
       end
 
       return false if stack.empty? || stack.pop.empty?
@@ -110,9 +111,33 @@ module Bitcoin
       && cmds[2] == 135
     end
 
+    def p2wpkh?(cmds = @cmds)
+      cmds.length == 2 \
+      && cmds[0] == 0 \
+      && cmds[1].is_a?(String) && cmds[1].length == 20
+    end
+
+    def p2wsh?(cmds = @cmds)
+      cmds.length == 2 \
+      && cmds[0] == 0 \
+      && cmds[1].is_a?(String) && cmds[1].length == 32
+    end
+
+    def self.p2pkh(hash160)
+      Script.new([118, 169, hash160, 136, 172])
+    end
+
+    def self.p2wpkh(hash160)
+      Script.new([0, hash160])
+    end
+
+    def self.p2wsh(hash256)
+      Script.new([0, hash256])
+    end
+
     private
 
-    def resolve_cmd(cmd, cmds, stack, altstack, z)
+    def resolve_cmd(cmd, cmds, stack, altstack, z, witness: nil)
       if cmd.is_a? Integer
         return execute_operation(cmd, cmds, stack, altstack, z)
       else
@@ -120,6 +145,10 @@ module Bitcoin
 
         if p2sh?(cmds)
           return execute_p2sh(cmd, cmds, stack)
+        elsif p2wpkh?
+          return execute_p2wpkh(cmds, stack, witness)
+        elsif p2wsh?
+          return execute_p2wsh(cmds, stack, witness)
         end
       end
 
@@ -140,6 +169,30 @@ module Bitcoin
       redeem_script = encode_varint(cmd.length) + cmd
       stream = StringIO.new(redeem_script)
       cmds.concat self.class.parse(stream).cmds
+    end
+
+    def execute_p2wpkh(cmds, stack, witness)
+      h160 = stack.pop
+      stack.pop
+      cmds.concat witness
+      cmds.concat self.class.p2wpkh(h160).cmds
+    end
+
+    def execute_p2wsh(cmds, stack, witness)
+      s256_stack = stack.pop
+      stack.pop
+      cmds.concat witness[0...-1]
+      witness_script = witness.last
+      s256_script = HashHelper.hash256(witness_script)
+
+      unless s256_stack == s256_script
+        raise "Witness script hash mismatch: \n"\
+          "stack: #{bytes_to_hex(s256_stack)} \n"\
+          "script: #{bytes_to_hex(s256_script)}"
+      end
+
+      stream = encode_varint(witness_script.size) + witness_script
+      cmds.concat parse(stream).cmds
     end
 
     def raw_serialize
